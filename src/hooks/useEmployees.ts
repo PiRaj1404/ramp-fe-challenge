@@ -4,17 +4,21 @@ import { useCustomFetch } from "./useCustomFetch"
 import { EmployeeResult } from "./types"
 
 export function useEmployees(): EmployeeResult {
-  const { fetchWithCache, loading } = useCustomFetch()
-  const [employees, setEmployees] = useState<Employee[] | null>(null)
+  const { fetchWithCache, loading } = useCustomFetch();
+  const [employees, setEmployees] = useState<Employee[] | null>(null);
 
   const fetchAll = useCallback(async () => {
-    const employeesData = await fetchWithCache<Employee[]>("employees")
-    setEmployees(employeesData)
-  }, [fetchWithCache])
+    try {
+      const employeesData = await fetchWithCache<Employee[]>("employees");
+      setEmployees(employeesData);
+    } catch (error) {
+      console.error("Failed to fetch employees:", error);
+    }
+  }, [fetchWithCache]);
 
   const invalidateData = useCallback(() => {
-    setEmployees(null)
-  }, [])
+    setEmployees(null);
+  }, []);
 
-  return { data: employees, loading, fetchAll, invalidateData }
+  return { data: employees, loading, fetchAll, invalidateData };
 }

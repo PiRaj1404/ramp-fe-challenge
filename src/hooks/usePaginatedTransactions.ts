@@ -8,28 +8,24 @@ export function usePaginatedTransactions(): PaginatedTransactionsResult {
   const [paginatedTransactions, setPaginatedTransactions] = useState<PaginatedResponse<Transaction[]> | null>(null);
 
   const fetchAll = useCallback(async () => {
-    const response = await fetchWithCache<PaginatedResponse<Transaction[]>, PaginatedRequestParams>(
-      "paginatedTransactions",
-      {
-        page: paginatedTransactions === null ? 0 : paginatedTransactions.nextPage,
-      }
-    );
-
-    setPaginatedTransactions((previousResponse) => {
-      if (response === null) {
-        return previousResponse;
-      }
-      if (previousResponse === null) {
-        return response;
-      }
-
+    try {
+      const response = await fetchWithCache<PaginatedResponse<Transaction[]>, PaginatedRequestParams>(
+        "paginatedTransactions",
+        { page: paginatedTransactions?.nextPage ?? 0 }
+      );
+      setPaginatedTransactions(prev => {
+        if (!response) return prev;
+        return prev ? {
+          ...prev,
+          data: [...prev.data, ...response.data],
+          nextPage: response.nextPage
+        } : response;
+      });
+    } catch (error) {
+      console.error("Failed to fetch paginated transactions:", error);
       
-      return {
-        data: [...previousResponse.data, ...response.data],
-        nextPage: response.nextPage
-      };
-    });
-  }, [fetchWithCache, paginatedTransactions]);
+    }
+  }, [fetchWithCache, paginatedTransactions?.nextPage]);
 
   const invalidateData = useCallback(() => {
     setPaginatedTransactions(null);

@@ -10,7 +10,7 @@ export function useTransactionsByEmployee(): TransactionsByEmployeeResult {
   const fetchById = useCallback(
     async (employeeId: string) => {
       if (employeeId === "") {
-        setTransactionsByEmployee(null); 
+        setTransactionsByEmployee(null);          
       } else {
         const data = await fetchWithCache<Transaction[], RequestByEmployeeParams>(
           "transactionsByEmployee", { employeeId }
